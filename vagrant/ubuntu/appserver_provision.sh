@@ -17,13 +17,9 @@ set -a; source $HOME/appserver.env; set +a;
 # php環境インストール
 apt install -y php${PHP_VERSION}
 
-# laravelのため必要なモジュール
-apt install -y php${PHP_VERSION}-mbstring php${PHP_VERSION}-xml php${PHP_VERSION}-json
-
 # php からmysqlに接続するため必要
 apt install -y php${PHP_VERSION}-mysql php${PHP_VERSION}-dev
 
-# /etc/php/7.2/fpm/
 # bagistoのためnodejsインストール
 # nodejs12はltsのバージョン
 apt install -y snapd
@@ -35,6 +31,8 @@ yarn global add nexe
 # mysql サーバーとバージョンがあっている必要がある。
 apt install -y mysql-client-${MYSQL_VERSION}
 apt install -y mysql-client-core-${MYSQL_VERSION}
+
+
 
 # nginxサーバーインストール
 apt install -y nginx
@@ -54,10 +52,32 @@ cp /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf /etc/php/${PHP_VERSION}/fpm/pool.
 cp /home/vagrant/www.conf /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf 
 rm /home/vagrant/www.conf
 
+# apache2が勝手にインストールされるので向こう化しておく。
+systemctl stop apache2
+systemctl disable apache2
+
 # make fpm server enable.
 systemctl enable php${PHP_VERSION}-fpm
-systemctl start php${PHP_VERSION}-fpm
+systemctl restart php${PHP_VERSION}-fpm
 
+# bagisto内部で使っているライブラリの追加
+# fpmとnginxが連携したあとでないとインストールに失敗する。
+# ext-gd
+apt install -y php${PHP_VERSION}-gd
+# ext-curl
+apt install -y php${PHP_VERSION}-curl
+# ext-intl
+apt install -y php${PHP_VERSION}-intl
+# ext-zip
+apt install -y php${PHP_VERSION}-zip
+# 内部でunzipコマンドを使っているためインストール
+apt install -y unzip
+
+# laravelのため必要なモジュール
+apt install -y php${PHP_VERSION}-mbstring php${PHP_VERSION}-xml php${PHP_VERSION}-json
+
+# fpmサーバーがnginxを使うために必要。
+# chown nginx:nginx /var/lib/php/session
 
 # install composer
 # reference for (https://getcomposer.org/download/)
