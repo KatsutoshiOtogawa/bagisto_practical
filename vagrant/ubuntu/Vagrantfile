@@ -6,6 +6,9 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
+
+  config.env.enable
+
   config.vm.define "appserver" do |server|
     # The most common configuration options are documented and commented below.
     # For a complete reference, please see the online documentation at
@@ -36,7 +39,8 @@ Vagrant.configure("2") do |config|
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
     # server.vm.network "private_network", ip: "192.168.33.10"
-    server.vm.network :private_network, ip: "192.168.33.10", virtualbox__intnet: "intnet"
+    #server.vm.network :private_network, ip: "192.168.33.10", virtualbox__intnet: "intnet"
+    server.vm.network :private_network, ip: ENV['appserver'], virtualbox__intnet: "intnet"
 
     # Create a public network, which generally matched to bridged network.
     # Bridged networks make the machine appear as another physical device on
@@ -59,7 +63,7 @@ Vagrant.configure("2") do |config|
       # vb.gui = true
     
       # Customize the amount of memory on the VM:
-      vb.memory = "3072"
+      vb.memory = ENV['appserver_memory']
     end
     #
     # View the documentation for the provider you are using for more
@@ -67,8 +71,8 @@ Vagrant.configure("2") do |config|
 
     # appserver.envのファイルを反映させる。
     server.vm.provision :file do |file|
-      file.source = "./appserver.env"
-      file.destination = "/home/vagrant/appserver.env"
+      file.source = "./.env"
+      file.destination = "/home/vagrant/.env"
     end
     # nginx.confのファイルを反映させる。
     server.vm.provision :file do |file|
@@ -116,8 +120,9 @@ Vagrant.configure("2") do |config|
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
     # server.vm.network "private_network", ip: "192.168.33.10"
-    server.vm.network :private_network, ip: "192.168.33.20", virtualbox__intnet: "intnet"
-
+    # server.vm.network :private_network, ip: "192.168.33.20", virtualbox__intnet: "intnet"
+    server.vm.network :private_network, ip: ENV['dbserver'], virtualbox__intnet: "intnet"
+    
     # Create a public network, which generally matched to bridged network.
     # Bridged networks make the machine appear as another physical device on
     # your network.
@@ -139,7 +144,7 @@ Vagrant.configure("2") do |config|
       # vb.gui = true
     
       # Customize the amount of memory on the VM:
-      vb.memory = "2048"
+      vb.memory = ENV['dbserver_memory']
     end
     #
     # View the documentation for the provider you are using for more
@@ -147,8 +152,8 @@ Vagrant.configure("2") do |config|
 
     # dbserver.envのファイルを反映させる。
     server.vm.provision :file do |file|
-      file.source = "./db/db.env"
-      file.destination = "/home/vagrant/db.env"
+      file.source = "./.env"
+      file.destination = "/home/vagrant/.env"
     end
 
     # Enable provisioning with a shell script. Additional provisioners such as

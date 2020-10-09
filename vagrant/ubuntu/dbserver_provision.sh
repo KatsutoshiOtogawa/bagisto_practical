@@ -1,13 +1,39 @@
 
 apt update && apt upgrade -y
 
-cp /home/vagrant/db.env $HOME/
-
-# アップロードしたファイルを削除
-rm /home/vagrant/db.env
-
 # envファイルの変数を環境変数に変更。
-set -a; source $HOME/db.env; set +a;
+set -a; source /home/vagrant/.env; set +a;
+
+# インストール時の設定としてサーバー管理者(root)の環境変数に反映させておく。
+# appserver設定
+echo "# appserver設定" >> $HOME/.bash_profile
+echo "export appserver=${appserver}" >> $HOME/.bash_profile
+echo "" >> $HOME/.bash_profile
+
+# dbserver設定
+echo "# dbserver設定" >> $HOME/.bash_profile
+echo "export MYSQL_VERSION=${MYSQL_VERSION}" >> $HOME/.bash_profile
+echo "export MYSQL_PASSWORD=${MYSQL_PASSWORD}" >> $HOME/.bash_profile
+echo "export MYSQL_DBADMIN_PASSWORD=${MYSQL_DBADMIN_PASSWORD}" >> $HOME/.bash_profile
+echo "export MYSQL_TEST_PASSWORD=${MYSQL_TEST_PASSWORD}" >> $HOME/.bash_profile
+echo "export MYSQL_DEVELOPMENT_PASSWORD=${MYSQL_DEVELOPMENT_PASSWORD}" >> $HOME/.bash_profile
+echo "export MYSQL_PRODUCTION_PASSWORD=${MYSQL_PRODUCTION_PASSWORD}" >> $HOME/.bash_profile
+echo "export dbserver=${dbserver}" >> $HOME/.bash_profile
+echo "" >> $HOME/.bash_profile
+
+# 開発時の設定としてDB管理者(vagrant)の環境変数に反映させておく。
+# appserver設定
+su - vagrant -c "echo '# appserver設定' >> /home/vagrant/.bash_profile"
+su - vagrant -c "echo export appserver=${appserver} >> /home/vagrant/.bash_profile"
+su - vagrant -c "echo '' >> /home/vagrant/.bash_profile"
+
+# dbserver設定
+su - vagrant -c "echo '# dbserver設定' >> /home/vagrant/.bash_profile"
+su - vagrant -c "echo export MYSQL_DBADMIN_PASSWORD=${MYSQL_DBADMIN_PASSWORD} >> /home/vagrant/.bash_profile"
+su - vagrant -c "echo export MYSQL_TEST_PASSWORD=${MYSQL_TEST_PASSWORD} >> /home/vagrant/.bash_profile"
+su - vagrant -c "echo export MYSQL_DEVELOPMENT_PASSWORD=${MYSQL_DEVELOPMENT_PASSWORD} >> /home/vagrant/.bash_profile"
+su - vagrant -c "echo export dbserver=${dbserver} >> /home/vagrant/.bash_profile"
+su - vagrant -c "echo '' >> /home/vagrant/.bash_profile"
 
 # ファイルシステムの検索を簡単にするためmlocateをインストール
 apt install -y mlocate
@@ -232,36 +258,8 @@ pip3 uninstall pexpect
 apt remove --purge -y  pyhton3-pip
 apt remove --purge -y expect
 
-# インストール時の設定としてサーバー管理者(root)の環境変数に反映させておく。
-# appserver設定
-echo "# appserver設定" >> $HOME/.bash_profile
-echo "export appserver=${appserver}" >> $HOME/.bash_profile
-echo "" >> $HOME/.bash_profile
-
-# dbserver設定
-echo "# dbserver設定" >> $HOME/.bash_profile
-echo "export MYSQL_VERSION=${MYSQL_VERSION}" >> $HOME/.bash_profile
-echo "export MYSQL_PASSWORD=${MYSQL_PASSWORD}" >> $HOME/.bash_profile
-echo "export MYSQL_DBADMIN_PASSWORD=${MYSQL_DBADMIN_PASSWORD}" >> $HOME/.bash_profile
-echo "export MYSQL_TEST_PASSWORD=${MYSQL_TEST_PASSWORD}" >> $HOME/.bash_profile
-echo "export MYSQL_DEVELOPMENT_PASSWORD=${MYSQL_DEVELOPMENT_PASSWORD}" >> $HOME/.bash_profile
-echo "export MYSQL_PRODUCTION_PASSWORD=${MYSQL_PRODUCTION_PASSWORD}" >> $HOME/.bash_profile
-echo "export dbserver=${dbserver}" >> $HOME/.bash_profile
-echo "" >> $HOME/.bash_profile
-
-# 開発時の設定としてDB管理者(vagrant)の環境変数に反映させておく。
-# appserver設定
-su - vagrant -c "echo '# appserver設定' >> /home/vagrant/.bash_profile"
-su - vagrant -c "echo export appserver=${appserver} >> /home/vagrant/.bash_profile"
-su - vagrant -c "echo '' >> /home/vagrant/.bash_profile"
-
-# dbserver設定
-su - vagrant -c "echo '# dbserver設定' >> /home/vagrant/.bash_profile"
-su - vagrant -c "echo export MYSQL_DBADMIN_PASSWORD=${MYSQL_DBADMIN_PASSWORD} >> /home/vagrant/.bash_profile"
-su - vagrant -c "echo export MYSQL_TEST_PASSWORD=${MYSQL_TEST_PASSWORD} >> /home/vagrant/.bash_profile"
-su - vagrant -c "echo export MYSQL_DEVELOPMENT_PASSWORD=${MYSQL_DEVELOPMENT_PASSWORD} >> /home/vagrant/.bash_profile"
-su - vagrant -c "echo export dbserver=${dbserver} >> /home/vagrant/.bash_profile"
-su - vagrant -c "echo '' >> /home/vagrant/.bash_profile"
+# .envファイルの必要な設定を.bash_profileに写したので削除
+rm /home/vagrant/.env
 
 # locateのデータベース更新。
 updatedb
