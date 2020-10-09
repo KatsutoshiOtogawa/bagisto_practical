@@ -1,0 +1,159 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.define "appserver" do |server|
+    # The most common configuration options are documented and commented below.
+    # For a complete reference, please see the online documentation at
+    # https://docs.vagrantup.com.
+
+    # Every Vagrant development environment requires a box. You can search for
+    # boxes at https://vagrantcloud.com/search.
+    server.vm.box = "ubuntu/bionic64"
+    
+    # Disable automatic box update checking. If you disable this, then
+    # boxes will only be checked for updates when the user runs
+    # `vagrant box outdated`. This is not recommended.
+    # server.vm.box_check_update = false
+
+    # Create a forwarded port mapping which allows access to a specific port
+    # within the machine from a port on the host machine. In the example below,
+    # accessing "localhost:8080" will access port 80 on the guest machine.
+    # NOTE: This will enable public access to the opened port
+    # server.vm.network "forwarded_port", guest: 80, host: 8080
+
+    # Create a forwarded port mapping which allows access to a specific port
+    # within the machine from a port on the host machine and only allow access
+    # via 127.0.0.1 to disable public access
+    server.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+    server.vm.network "forwarded_port", guest: 3000, host: 3000, host_ip: "127.0.0.1"
+    server.vm.network "forwarded_port", guest: 3001, host: 3001, host_ip: "127.0.0.1"
+
+    # Create a private network, which allows host-only access to the machine
+    # using a specific IP.
+    # server.vm.network "private_network", ip: "192.168.33.10"
+    server.vm.network :private_network, ip: "192.168.33.10", virtualbox__intnet: "intnet"
+
+    # Create a public network, which generally matched to bridged network.
+    # Bridged networks make the machine appear as another physical device on
+    # your network.
+    # server.vm.network "public_network"
+
+    # Share an additional folder to the guest VM. The first argument is
+    # the path on the host to the actual folder. The second argument is
+    # the path on the guest to mount the folder. And the optional third
+    # argument is a set of non-required options.
+    # this is require vagrant-vbguest plugin
+    server.vm.synced_folder "../../bagisto", "/home/vagrant/bagisto",type:"virtualbox"
+
+    # Provider-specific configuration so you can fine-tune various
+    # backing providers for Vagrant. These expose provider-specific options.
+    # Example for VirtualBox:
+    #
+    server.vm.provider "virtualbox" do |vb|
+      # Display the VirtualBox GUI when booting the machine
+      # vb.gui = true
+    
+      # Customize the amount of memory on the VM:
+      vb.memory = "3072"
+    end
+    #
+    # View the documentation for the provider you are using for more
+    # information on available options.
+
+    # appserver.envのファイルを反映させる。
+    server.vm.provision :file do |file|
+      file.source = "./appserver.env"
+      file.destination = "/home/vagrant/appserver.env"
+    end
+    # nginx.confのファイルを反映させる。
+    server.vm.provision :file do |file|
+      file.source = "./nginx/default"
+      file.destination = "/home/vagrant/default"
+    end
+
+    # nginx.confのファイルを反映させる。
+    server.vm.provision :file do |file|
+      file.source = "./fpm/www.conf"
+      file.destination = "/home/vagrant/www.conf"
+    end
+
+    # Enable provisioning with a shell script. Additional provisioners such as
+    # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+    # documentation for more information about their specific syntax and use.
+    server.vm.provision "shell", path: "./appserver_provision.sh"
+  end
+
+  config.vm.define "dbserver" do |server|
+    # The most common configuration options are documented and commented below.
+    # For a complete reference, please see the online documentation at
+    # https://docs.vagrantup.com.
+
+    # Every Vagrant development environment requires a box. You can search for
+    # boxes at https://vagrantcloud.com/search.
+    server.vm.box = "ubuntu/bionic64"
+
+    # Disable automatic box update checking. If you disable this, then
+    # boxes will only be checked for updates when the user runs
+    # `vagrant box outdated`. This is not recommended.
+    # server.vm.box_check_update = false
+
+    # Create a forwarded port mapping which allows access to a specific port
+    # within the machine from a port on the host machine. In the example below,
+    # accessing "localhost:8080" will access port 80 on the guest machine.
+    # NOTE: This will enable public access to the opened port
+    # server.vm.network "forwarded_port", guest: 80, host: 8080
+
+    # Create a forwarded port mapping which allows access to a specific port
+    # within the machine from a port on the host machine and only allow access
+    # via 127.0.0.1 to disable public access
+    # server.vm.network "forwarded_port", guest: 5432, host: 5432, host_ip: "127.0.0.1"
+
+    # Create a private network, which allows host-only access to the machine
+    # using a specific IP.
+    # server.vm.network "private_network", ip: "192.168.33.10"
+    server.vm.network :private_network, ip: "192.168.33.20", virtualbox__intnet: "intnet"
+
+    # Create a public network, which generally matched to bridged network.
+    # Bridged networks make the machine appear as another physical device on
+    # your network.
+    # server.vm.network "public_network"
+
+    # Share an additional folder to the guest VM. The first argument is
+    # the path on the host to the actual folder. The second argument is
+    # the path on the guest to mount the folder. And the optional third
+    # argument is a set of non-required options.
+    # this is require vagrant-vbguest plugin
+    # server.vm.synced_folder "../sql", "/home/vagrant/sql",type:"virtualbox"
+
+    # Provider-specific configuration so you can fine-tune various
+    # backing providers for Vagrant. These expose provider-specific options.
+    # Example for VirtualBox:
+    #
+    server.vm.provider "virtualbox" do |vb|
+      # Display the VirtualBox GUI when booting the machine
+      # vb.gui = true
+    
+      # Customize the amount of memory on the VM:
+      vb.memory = "2048"
+    end
+    #
+    # View the documentation for the provider you are using for more
+    # information on available options.
+
+    # dbserver.envのファイルを反映させる。
+    server.vm.provision :file do |file|
+      file.source = "./db/db.env"
+      file.destination = "/home/vagrant/db.env"
+    end
+
+    # Enable provisioning with a shell script. Additional provisioners such as
+    # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+    # documentation for more information about their specific syntax and use.
+    server.vm.provision "shell", path: "./dbserver_provision.sh"
+  end
+end
