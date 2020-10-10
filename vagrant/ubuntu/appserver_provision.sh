@@ -43,6 +43,11 @@ su - vagrant -c "echo export MYSQL_DEVELOPMENT_PASSWORD=${MYSQL_DEVELOPMENT_PASS
 su - vagrant -c "echo export dbserver=${dbserver} >> /home/vagrant/.bash_profile"
 su - vagrant -c "echo '' >> /home/vagrant/.bash_profile"
 
+# php7.3以上はppaが必要なためインストール
+sudo apt -y install software-properties-common
+sudo add-apt-repository -y ppa:ondrej/php
+sudo apt-get -y update
+
 # php環境インストール
 apt install -y php${PHP_VERSION}
 
@@ -167,7 +172,7 @@ echo -e "${dbserver}\tdb\tdbserver" >> /etc/hosts
 
 # phpからmysql疎通確認
 # \でエスケープしないと$がbash側の値で参照されるので注意。
-php7.2 << END
+php${PHP_VERSION} << END
 <?php
 
 \$conn = new mysqli(getenv('dbserver'), 'test_user',getenv('MYSQL_TEST_PASSWORD'), 'test_db');
