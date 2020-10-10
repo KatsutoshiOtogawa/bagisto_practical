@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
     # the path on the guest to mount the folder. And the optional third
     # argument is a set of non-required options.
     # this is require vagrant-vbguest plugin
-    server.vm.synced_folder "../../bagisto", "/home/vagrant/bagisto",type:"virtualbox"
+    server.vm.synced_folder "../../ecsite", "/home/vagrant/ecsite",type:"virtualbox"
 
     # Provider-specific configuration so you can fine-tune various
     # backing providers for Vagrant. These expose provider-specific options.
