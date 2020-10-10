@@ -61,8 +61,6 @@ yarn global add nexe
 apt install -y mysql-client-${MYSQL_VERSION}
 apt install -y mysql-client-core-${MYSQL_VERSION}
 
-
-
 # nginxサーバーインストール
 apt install -y nginx
 # sites-available/defaultのbackup作成。
@@ -114,6 +112,12 @@ php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 php -r "if (hash_file('sha384', 'composer-setup.php') === '795f976fe0ebd8b75f26a6dd68f78fd3453ce79f32ecb33e7fd087d39bfeb978342fb73ac986cd4f54edd0dc902601dc') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
 php composer-setup.php --install-dir=/usr/bin --filename=composer
 php -r "unlink('composer-setup.php');"
+
+# composer update時にswap領域がないとエラーで実行できないため作成
+dd if=/dev/zero of=/var/swap.1 bs=1M count=$appserver_swap
+mkswap /var/swap.1
+chmod 0600 /var/swap.1
+swapon /var/swap.1
 
 # AppArmor,firewalldの初期状態の確認
 echo AppArmor status is ...

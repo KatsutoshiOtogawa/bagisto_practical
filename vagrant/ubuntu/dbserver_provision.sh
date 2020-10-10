@@ -35,6 +35,12 @@ su - vagrant -c "echo export MYSQL_DEVELOPMENT_PASSWORD=${MYSQL_DEVELOPMENT_PASS
 su - vagrant -c "echo export dbserver=${dbserver} >> /home/vagrant/.bash_profile"
 su - vagrant -c "echo '' >> /home/vagrant/.bash_profile"
 
+# スワップ領域の作成
+dd if=/dev/zero of=/var/swap.1 bs=1M count=$dbserver_swap
+mkswap /var/swap.1
+chmod 0600 /var/swap.1
+swapon /var/swap.1
+
 # ファイルシステムの検索を簡単にするためmlocateをインストール
 apt install -y mlocate
 
@@ -217,8 +223,6 @@ cur.close()
 conn.close()
 
 END
-
-
 
 # mysqlサーバーが、privateネットワークからのみ接続できるように設定。
 # 上の設定の方が優先度が高いので注意!
